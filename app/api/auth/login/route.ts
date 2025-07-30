@@ -8,12 +8,23 @@ const CLASSEVIVA_HEADERS = {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    // Parse the request body
+    let body
+    try {
+      body = await request.json()
+    } catch (parseError) {
+      console.error("❌ Failed to parse request body:", parseError)
+      return NextResponse.json({ error: "Invalid JSON in request body" }, { status: 400 })
+    }
+
     const { uid, pass } = body
 
     console.log("🔐 Login attempt for user:", uid)
+    console.log("📡 Request body received:", { uid: uid || "missing", pass: pass ? "***" : "missing" })
 
+    // Validate required fields
     if (!uid || !pass) {
+      console.error("❌ Missing credentials:", { uid: !!uid, pass: !!pass })
       return NextResponse.json({ error: "Missing credentials" }, { status: 400 })
     }
 
@@ -30,6 +41,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Create the payload exactly like your Python script
     const loginPayload = {
       ident: null,
       pass: pass,
@@ -37,29 +49,34 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("🚀 Attempting ClasseViva API login...")
+    console.log("📡 Sending payload:", { ...loginPayload, pass: "***" })
 
-    // Direct API call like your Python script
+    // Make the API call exactly like your Python script
     const response = await fetch("https://web.spaggiari.eu/rest/v1/auth/login", {
       method: "POST",
       headers: CLASSEVIVA_HEADERS,
       body: JSON.stringify(loginPayload),
     })
 
+    console.log("📥 ClasseViva API Response Status:", response.status)
+    console.log("📥 ClasseViva API Response Headers:", Object.fromEntries(response.headers.entries()))
+
     const responseText = await response.text()
-    console.log("📥 ClasseViva API Response:", {
-      status: response.status,
-      body: responseText.substring(0, 500),
-    })
+    console.log("📥 ClasseViva API Response Body:", responseText.substring(0, 500))
 
+    // Handle non-200 responses
     if (!response.ok) {
-      console.error("❌ Login failed:", response.status, responseText)
+      console.error("❌ ClasseViva API returned error:", response.status)
 
-      // Check if it's a WAF block
+      // Check if it's a WAF block or access denied
       if (
         responseText.includes("Access Denied") ||
         responseText.includes("Permission") ||
-        responseText.includes("HTML")
+        responseText.includes("HTML") ||
+        responseText.includes("Reference") ||
+        responseText.includes("<!DOCTYPE")
       ) {
+        console.error("🚫 WAF/Security system blocking request")
         return NextResponse.json(
           {
             error: "API Access Blocked",
@@ -71,24 +88,30 @@ export async function POST(request: NextRequest) {
         )
       }
 
+      // Handle other HTTP errors
       return NextResponse.json(
         {
           error: "Login failed",
-          details: "Invalid credentials or server error",
+          details: `HTTP ${response.status}: ${responseText.substring(0, 200)}`,
           status: response.status,
         },
         { status: response.status },
       )
     }
 
+    // Parse successful response
     try {
       const data = JSON.parse(responseText)
       console.log("✅ Login successful!")
+      console.log("📄 Parsed response keys:", Object.keys(data))
 
-      // Extract the ident like in your Python script (remove quotes)
-      const cleanIdent = data.ident ? data.ident.slice(1, -1) : data.ident
+      // Extract the ident like in your Python script (remove quotes if present)
+      let cleanIdent = data.ident
+      if (typeof cleanIdent === "string" && cleanIdent.startsWith('"') && cleanIdent.endsWith('"')) {
+        cleanIdent = cleanIdent.slice(1, -1)
+      }
 
-      return NextResponse.json({
+      const loginResponse = {
         token: data.token,
         release: data.release,
         expire: data.expire,
@@ -99,9 +122,13 @@ export async function POST(request: NextRequest) {
           usrType: data.usrType || "S",
           usrId: Number.parseInt(cleanIdent) || 0,
         },
-      })
+      }
+
+      console.log("📤 Sending login response:", { ...loginResponse, token: "***" })
+      return NextResponse.json(loginResponse)
     } catch (parseError) {
-      console.error("❌ Failed to parse response as JSON:", parseError)
+      console.error("❌ Failed to parse ClasseViva response as JSON:", parseError)
+      console.error("📄 Raw response:", responseText)
       return NextResponse.json(
         {
           error: "Invalid response format",
@@ -117,6 +144,7 @@ export async function POST(request: NextRequest) {
       {
         error: "Server error",
         details: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
       },
       { status: 500 },
     )

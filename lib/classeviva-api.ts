@@ -164,31 +164,47 @@ class ClasseVivaAPI {
   }
 
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
-    console.log("Starting login attempt...")
+    console.log("🔐 ClasseVivaAPI.login() called with:", { uid: credentials.uid, pass: "***" })
+
+    // Validate credentials
+    if (!credentials.uid || !credentials.pass) {
+      throw new Error("Missing username or password")
+    }
 
     // Check if user is trying demo credentials
     if (credentials.uid === "demo" || credentials.uid === "student") {
-      console.log("Demo credentials detected, using mock API")
+      console.log("🎭 Demo credentials detected, using mock API")
       this.useMockData = true
       return mockClasseVivaAPI.login(credentials)
     }
 
     // Try real API
     try {
-      console.log("Trying real ClasseViva API...")
+      console.log("🌐 Making request to /api/auth/login...")
+
+      const requestBody = {
+        uid: credentials.uid,
+        pass: credentials.pass,
+      }
+
+      console.log("📡 Request body:", { uid: requestBody.uid, pass: "***" })
+
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(credentials),
+        body: JSON.stringify(requestBody),
       })
 
+      console.log("📥 Response status:", response.status)
+      console.log("📥 Response headers:", Object.fromEntries(response.headers.entries()))
+
       const responseData = await response.json()
-      console.log("Real API response:", response.status, responseData)
+      console.log("📥 Response data:", { ...responseData, token: responseData.token ? "***" : undefined })
 
       if (response.ok && !responseData.error) {
-        console.log("Real API login successful!")
+        console.log("✅ Real API login successful!")
         return responseData as LoginResponse
       } else {
         // Handle different types of API responses
@@ -202,27 +218,34 @@ class ClasseVivaAPI {
               "The demo includes realistic data and all features!",
           )
         } else {
-          throw new Error(responseData.details || responseData.error || "Login failed")
+          const errorMessage = responseData.details || responseData.error || "Login failed"
+          console.error("❌ Login failed:", errorMessage)
+          throw new Error(errorMessage)
         }
       }
     } catch (error) {
-      console.log("Real API failed:", error)
+      console.error("💥 Login request failed:", error)
 
       // If it's our custom blocking error, re-throw it
       if (error instanceof Error && error.message.includes("blocking requests")) {
         throw error
       }
 
-      // For other errors, suggest demo mode
-      throw new Error(
-        "🔌 Unable to connect to ClasseViva API.\n\n" +
-          "This could be due to:\n" +
-          "• Network connectivity issues\n" +
-          "• Server-side blocking\n" +
-          "• API maintenance\n\n" +
-          "📱 Try DEMO MODE instead:\n" +
-          "Username: 'demo' | Password: 'demo'",
-      )
+      // For network errors or other issues
+      if (error instanceof Error && error.message.includes("fetch")) {
+        throw new Error(
+          "🔌 Unable to connect to the server.\n\n" +
+            "This could be due to:\n" +
+            "• Network connectivity issues\n" +
+            "• Server not running\n" +
+            "• CORS issues\n\n" +
+            "📱 Try DEMO MODE instead:\n" +
+            "Username: 'demo' | Password: 'demo'",
+        )
+      }
+
+      // Re-throw other errors
+      throw error
     }
   }
 
