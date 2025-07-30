@@ -1,55 +1,65 @@
 #!/bin/bash
 
-echo "🚀 SysRegister Self-Hosting Setup"
-echo "=================================="
+echo "🚀 SysRegister Deployment Script"
+echo "================================"
 
-# Check if Docker is installed
-if ! command -v docker &> /dev/null; then
-    echo "❌ Docker is not installed. Please install Docker first."
-    echo "Visit: https://docs.docker.com/get-docker/"
+# Function to check if command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+# Check for Node.js
+if command_exists node; then
+    echo "✅ Node.js found: $(node --version)"
+else
+    echo "❌ Node.js not found. Please install Node.js 18+ first."
+    echo "   Visit: https://nodejs.org/"
     exit 1
 fi
 
-# Check if Docker Compose is installed
-if ! command -v docker-compose &> /dev/null; then
-    echo "❌ Docker Compose is not installed. Please install Docker Compose first."
-    echo "Visit: https://docs.docker.com/compose/install/"
+# Check for npm
+if command_exists npm; then
+    echo "✅ npm found: $(npm --version)"
+else
+    echo "❌ npm not found. Please install npm first."
     exit 1
 fi
 
-echo "✅ Docker and Docker Compose are installed"
-
-# Create .env file if it doesn't exist
-if [ ! -f .env.local ]; then
-    echo "📝 Creating .env.local file..."
-    cat > .env.local << EOL
-# Optional: Add your ClasseViva credentials
-# CLASSEVIVA_USERNAME=your_username
-# CLASSEVIVA_PASSWORD=your_password
-
-# App Configuration
-NODE_ENV=production
-NEXT_TELEMETRY_DISABLED=1
-EOL
-    echo "✅ Created .env.local file"
-fi
-
-# Build and run with Docker Compose
-echo "🔨 Building and starting SysRegister..."
-docker-compose up -d --build
-
 echo ""
-echo "🎉 SysRegister is now running!"
-echo "📱 Open your browser and go to: http://localhost:3000"
+echo "Choose deployment method:"
+echo "1) Development server (recommended for testing)"
+echo "2) Production build"
+echo "3) Docker (if available)"
 echo ""
-echo "🔧 Management commands:"
-echo "  Stop:    docker-compose down"
-echo "  Restart: docker-compose restart"
-echo "  Logs:    docker-compose logs -f"
-echo "  Update:  git pull && docker-compose up -d --build"
-echo ""
-echo "💡 Self-hosting benefits:"
-echo "  ✅ Your own server environment"
-echo "  ✅ No WAF restrictions"
-echo "  ✅ Same network as your working Node.js script"
-echo "  ✅ Full control over configuration"
+read -p "Enter choice (1-3): " choice
+
+case $choice in
+    1)
+        echo "🔧 Starting development server..."
+        chmod +x run-dev.sh
+        ./run-dev.sh
+        ;;
+    2)
+        echo "🏗️ Building for production..."
+        chmod +x run-local.sh
+        ./run-local.sh
+        ;;
+    3)
+        if command_exists docker; then
+            echo "🐳 Starting with Docker..."
+            docker compose up -d --build
+            echo "✅ Application should be running on http://localhost:3000"
+            echo "📋 View logs: docker compose logs -f"
+            echo "🛑 Stop: docker compose down"
+        else
+            echo "❌ Docker not found. Falling back to local development..."
+            chmod +x run-dev.sh
+            ./run-dev.sh
+        fi
+        ;;
+    *)
+        echo "❌ Invalid choice. Starting development server..."
+        chmod +x run-dev.sh
+        ./run-dev.sh
+        ;;
+esac
