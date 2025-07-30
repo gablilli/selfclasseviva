@@ -19,7 +19,7 @@ Self-hosting SysRegister on your own server can bypass the API restrictions that
 
 ### 1. Clone the Repository
 ```
-git clone github.com/gablilli/selfclasseviva.git 
+git clone [github.com/gablilli/selfclasseviva.git](https://github.com/gablilli/selfclasseviva.git) 
 cd selfclasseviva
 ```
 
