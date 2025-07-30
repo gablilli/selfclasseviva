@@ -1,6 +1,6 @@
-# 🏠 Self-Hosting SysRegister
+# 🏠 ClassevivaSelfHost - An alternative self-hosted Classeviva Frontend
 
-Self-hosting SysRegister on your own server can bypass the API restrictions that affect hosted versions.
+Selfhosted Classeviva - a solution to alternative frontends for Classeviva.
 
 ## 🎯 Why Self-Hosting Works
 
