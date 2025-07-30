@@ -35,9 +35,10 @@ Open http://localhost:3000 in your browser
 ## 🔧 Manual Setup
 
 ### Option 1: Docker Compose
-\`\`\`bash
 # Build and run
+```
 docker-compose up -d --build
+```
 
 # View logs
 docker-compose logs -f
