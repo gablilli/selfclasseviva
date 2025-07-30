@@ -18,16 +18,16 @@ Selfhosted Classeviva - a solution to alternative frontends for Classeviva.
 - Git installed
 
 ### 1. Clone the Repository
-```
+\`\`\`
 git clone [github.com/gablilli/selfclasseviva.git](https://github.com/gablilli/selfclasseviva.git) 
 cd selfclasseviva
-```
+\`\`\`
 
 ### 2. Run the Setup Script
-```
+\`\`\`
 chmod +x deploy.sh
 ./deploy.sh
-```
+\`\`\`
 
 ### 3. Access the App
 Open http://localhost:3000 in your browser
@@ -36,9 +36,9 @@ Open http://localhost:3000 in your browser
 
 ### Option 1: Docker Compose
 # Build and run
-```
+\`\`\`
 docker-compose up -d --build
-```
+\`\`\`
 
 # View logs
 docker-compose logs -f
@@ -61,9 +61,9 @@ npm start
 \`\`\`
 
 ### Option 3: Docker Only
-```
+\`\`\`
 docker build -t sysregister .
-```
+\`\`\`
 
 # Run container
 docker run -p 3000:3000 sysregister
@@ -95,10 +95,10 @@ ports:
 ## 🔐 Environment Variables
 
 Create `.env.local` file to pre-fill the credentials - this is optional
-```
+\`\`\`
 CLASSEVIVA_USERNAME=your_username
 CLASSEVIVA_PASSWORD=your_password
-```
+\`\`\`
 
 # App settings
 NODE_ENV=production
@@ -166,7 +166,7 @@ docker-compose ps
 ### Reverse Proxy (Recommended)
 Use Nginx or Traefik for HTTPS:
 
-```nginx
+\`\`\`nginx
 server {
     listen 80;
     server_name your-domain.com;
