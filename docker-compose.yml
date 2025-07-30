@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  sysregister:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      # Optional: Add your ClasseViva credentials as environment variables
+      # - CLASSEVIVA_USERNAME=your_username
+      # - CLASSEVIVA_PASSWORD=your_password
+    restart: unless-stopped
+    networks:
+      - sysregister-network
+
+networks:
+  sysregister-network:
+    driver: bridge
