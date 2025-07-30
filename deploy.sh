@@ -8,58 +8,55 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-# Check for Node.js
-if command_exists node; then
-    echo "✅ Node.js found: $(node --version)"
-else
-    echo "❌ Node.js not found. Please install Node.js 18+ first."
-    echo "   Visit: https://nodejs.org/"
+# Check for required tools
+if ! command_exists docker; then
+    echo "❌ Docker is not installed. Please install Docker first."
     exit 1
 fi
 
-# Check for npm
-if command_exists npm; then
-    echo "✅ npm found: $(npm --version)"
-else
-    echo "❌ npm not found. Please install npm first."
+if ! command_exists docker-compose; then
+    echo "❌ Docker Compose is not installed. Please install Docker Compose first."
     exit 1
 fi
 
+echo "✅ Docker and Docker Compose are available"
+
+# Ask user for deployment method
 echo ""
 echo "Choose deployment method:"
-echo "1) Development server (recommended for testing)"
-echo "2) Production build"
-echo "3) Docker (if available)"
+echo "1) Development mode (npm run dev)"
+echo "2) Production mode (npm run build && npm start)"
+echo "3) Docker (recommended)"
 echo ""
-read -p "Enter choice (1-3): " choice
+read -p "Enter your choice (1-3): " choice
 
 case $choice in
     1)
-        echo "🔧 Starting development server..."
+        echo "🔧 Starting development mode..."
         chmod +x run-dev.sh
         ./run-dev.sh
         ;;
     2)
-        echo "🏗️ Building for production..."
+        echo "🏗️ Starting production mode..."
         chmod +x run-local.sh
         ./run-local.sh
         ;;
     3)
-        if command_exists docker; then
-            echo "🐳 Starting with Docker..."
-            docker compose up -d --build
-            echo "✅ Application should be running on http://localhost:3000"
-            echo "📋 View logs: docker compose logs -f"
-            echo "🛑 Stop: docker compose down"
-        else
-            echo "❌ Docker not found. Falling back to local development..."
-            chmod +x run-dev.sh
-            ./run-dev.sh
-        fi
+        echo "🐳 Starting Docker deployment..."
+        docker compose down
+        docker compose up -d --build
+        echo ""
+        echo "✅ SysRegister is now running!"
+        echo "🌐 Open: http://localhost:3000"
+        echo "📊 Logs: docker compose logs -f sysregister"
+        echo "🛑 Stop: docker compose down"
         ;;
     *)
-        echo "❌ Invalid choice. Starting development server..."
-        chmod +x run-dev.sh
-        ./run-dev.sh
+        echo "❌ Invalid choice. Please run the script again."
+        exit 1
         ;;
 esac
+
+echo ""
+echo "🎉 Deployment complete!"
+echo "🌐 Access your app at: http://localhost:3000"

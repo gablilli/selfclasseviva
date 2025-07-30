@@ -6,19 +6,25 @@ Your Node.js script works locally but the hosted version gets blocked by ClasseV
 
 ## ⚡ Quick Start (Recommended)
 
-### Option 1: Development Server (Fastest)
+### Development Mode (Recommended)
 \`\`\`bash
 chmod +x run-dev.sh
 ./run-dev.sh
 \`\`\`
 
-### Option 2: Production Build
+Or manually:
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+### Production Mode
 \`\`\`bash
 chmod +x run-local.sh
 ./run-local.sh
 \`\`\`
 
-### Option 3: Docker (Fixed)
+### Docker
 \`\`\`bash
 docker compose up -d --build
 \`\`\`
@@ -174,6 +180,3 @@ docker compose up -d --build
 ---
 
 **Remember**: If your Node.js script works from this machine, the web app should work too! 🚀
-\`\`\`
-
-Now let's update the deploy script to handle the different options:

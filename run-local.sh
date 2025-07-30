@@ -43,13 +43,13 @@ EOL
     echo ""
 fi
 
-echo "🏗️ Building application..."
+echo "🔨 Building application..."
 npm run build
 
 if [ $? -eq 0 ]; then
     echo "✅ Build successful!"
     echo ""
-    echo "🔥 Starting production server..."
+    echo "🚀 Starting production server..."
     echo "📱 The app will be available at: http://localhost:3000"
     echo "🛑 Press Ctrl+C to stop the server"
     echo ""

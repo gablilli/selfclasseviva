@@ -2,9 +2,9 @@ import { NextResponse } from "next/server"
 
 export async function GET() {
   return NextResponse.json({
-    message: "API is working",
+    status: "API is working",
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV,
+    message: "Test endpoint is functional",
   })
 }
 
@@ -12,15 +12,17 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     return NextResponse.json({
-      message: "POST request received",
-      receivedData: body,
+      status: "POST request received",
       timestamp: new Date().toISOString(),
+      receivedData: body,
+      message: "API can receive and parse JSON data",
     })
   } catch (error) {
     return NextResponse.json(
       {
-        error: "Failed to parse JSON",
-        details: error instanceof Error ? error.message : "Unknown error",
+        status: "Error parsing JSON",
+        error: error instanceof Error ? error.message : "Unknown error",
+        timestamp: new Date().toISOString(),
       },
       { status: 400 },
     )
