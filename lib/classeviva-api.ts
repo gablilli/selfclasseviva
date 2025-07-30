@@ -18,14 +18,6 @@ interface LoginResponse {
   }
 }
 
-interface ApiError {
-  error: string
-  message?: string
-  details?: string
-  blocked?: boolean
-  suggestion?: string
-}
-
 interface Grade {
   subjectId: number
   subjectCode: string
@@ -181,7 +173,7 @@ class ClasseVivaAPI {
       return mockClasseVivaAPI.login(credentials)
     }
 
-    // Try real API first
+    // Try real API
     try {
       console.log("Trying real ClasseViva API...")
       const response = await fetch("/api/auth/login", {
@@ -202,9 +194,9 @@ class ClasseVivaAPI {
         // Handle different types of API responses
         if (responseData.isBlocked || responseData.error === "API Access Blocked") {
           throw new Error(
-            "🚫 ClasseViva API is currently blocking requests from this server.\n\n" +
-              "This is common with mobile-first APIs that have strict security policies.\n\n" +
-              "📱 Try the DEMO MODE to see how the app works:\n" +
+            "🚫 ClasseViva API is blocking requests from this server.\n\n" +
+              "This could be due to geographic restrictions or security policies.\n\n" +
+              "📱 Try DEMO MODE to see how the app works:\n" +
               "• Username: 'demo' Password: 'demo'\n" +
               "• Username: 'student' Password: 'password'\n\n" +
               "The demo includes realistic data and all features!",

@@ -1,7 +1,8 @@
 #!/bin/bash
 
-echo "🏗️ Building and Running SysRegister Locally"
-echo "============================================"
+echo "🚀 Starting SysRegister in production mode..."
+echo "📍 This will run on http://localhost:3000"
+echo ""
 
 # Check if Node.js is installed
 if ! command -v node &> /dev/null; then
@@ -20,12 +21,10 @@ echo "✅ Node.js found: $(node --version)"
 echo "✅ npm found: $(npm --version)"
 echo ""
 
-# Install dependencies if node_modules doesn't exist
+# Check if node_modules exists
 if [ ! -d "node_modules" ]; then
     echo "📦 Installing dependencies..."
     npm install
-    echo "✅ Dependencies installed"
-    echo ""
 fi
 
 # Create .env.local if it doesn't exist
@@ -44,13 +43,13 @@ EOL
     echo ""
 fi
 
-echo "🔨 Building the application..."
+echo "🏗️ Building application..."
 npm run build
 
 if [ $? -eq 0 ]; then
     echo "✅ Build successful!"
     echo ""
-    echo "🚀 Starting production server..."
+    echo "🔥 Starting production server..."
     echo "📱 The app will be available at: http://localhost:3000"
     echo "🛑 Press Ctrl+C to stop the server"
     echo ""

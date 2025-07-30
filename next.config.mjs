@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
+  experimental: {
+    serverComponentsExternalPackages: [],
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -8,10 +12,6 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
-  },
-  output: 'standalone',
-  experimental: {
-    outputFileTracingRoot: undefined,
   },
 }
 

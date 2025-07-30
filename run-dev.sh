@@ -1,6 +1,7 @@
 #!/bin/bash
 
 echo "🚀 Starting SysRegister in Development Mode"
+echo "📍 This will run on http://localhost:3000"
 echo "==========================================="
 
 # Check if Node.js is installed
@@ -20,12 +21,10 @@ echo "✅ Node.js found: $(node --version)"
 echo "✅ npm found: $(npm --version)"
 echo ""
 
-# Install dependencies if node_modules doesn't exist
+# Check if node_modules exists
 if [ ! -d "node_modules" ]; then
     echo "📦 Installing dependencies..."
     npm install
-    echo "✅ Dependencies installed"
-    echo ""
 fi
 
 # Create .env.local if it doesn't exist
@@ -44,10 +43,5 @@ EOL
     echo ""
 fi
 
-echo "🔧 Starting development server..."
-echo "📱 The app will be available at: http://localhost:3000"
-echo "🛑 Press Ctrl+C to stop the server"
-echo ""
-
-# Start the development server
+echo "🔥 Starting development server..."
 npm run dev

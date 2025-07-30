@@ -1,21 +1,11 @@
-version: '3.8'
-
 services:
   sysregister:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile.simple
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - NEXT_TELEMETRY_DISABLED=1
     restart: unless-stopped
-    volumes:
-      - ./logs:/app/logs
-    networks:
-      - sysregister-network
-
-networks:
-  sysregister-network:
-    driver: bridge
+    container_name: sysregister

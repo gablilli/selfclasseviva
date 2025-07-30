@@ -9,15 +9,9 @@ const CLASSEVIVA_HEADERS = {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    let { uid, pass } = body
+    const { uid, pass } = body
 
     console.log("🔐 Login attempt for user:", uid)
-    console.log("🌐 Server environment:", {
-      nodeEnv: process.env.NODE_ENV,
-      host: request.headers.get("host"),
-      userAgent: request.headers.get("user-agent"),
-      forwarded: request.headers.get("x-forwarded-for"),
-    })
 
     if (!uid || !pass) {
       return NextResponse.json({ error: "Missing credentials" }, { status: 400 })
@@ -36,16 +30,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check for environment variables (for self-hosted setups)
-    if (process.env.CLASSEVIVA_USERNAME && process.env.CLASSEVIVA_PASSWORD) {
-      console.log("🔧 Using environment variables for authentication")
-      if (uid === process.env.CLASSEVIVA_USERNAME && pass === process.env.CLASSEVIVA_PASSWORD) {
-        // Use the credentials from environment
-        uid = process.env.CLASSEVIVA_USERNAME
-        pass = process.env.CLASSEVIVA_PASSWORD
-      }
-    }
-
     const loginPayload = {
       ident: null,
       pass: pass,
@@ -53,9 +37,8 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("🚀 Attempting ClasseViva API login...")
-    console.log("📡 Request payload:", { uid, pass: "***" })
 
-    // Self-hosted environments often work better with the API
+    // Direct API call like your Python script
     const response = await fetch("https://web.spaggiari.eu/rest/v1/auth/login", {
       method: "POST",
       headers: CLASSEVIVA_HEADERS,
@@ -65,49 +48,34 @@ export async function POST(request: NextRequest) {
     const responseText = await response.text()
     console.log("📥 ClasseViva API Response:", {
       status: response.status,
-      headers: Object.fromEntries(response.headers.entries()),
       body: responseText.substring(0, 500),
     })
 
-    // Check if it's the WAF blocking us
-    if (
-      responseText.includes("Access Denied") ||
-      responseText.includes("Permission") ||
-      responseText.includes("HTML") ||
-      responseText.includes("Reference")
-    ) {
-      console.error("🚫 WAF/Security system blocking request")
-      console.log("💡 Self-hosting tip: Try running on localhost or different server location")
-
-      return NextResponse.json(
-        {
-          error: "API Access Blocked",
-          message: "ClasseViva API is blocking requests from this server environment.",
-          details: "This is common with hosted environments. Self-hosting often resolves this issue.",
-          suggestions: [
-            "✅ Self-host on your local machine or VPS",
-            "✅ Try running on localhost first",
-            "✅ Use a VPS in a different geographic location",
-            "✅ Check if your Node.js script works from the same server",
-            "🎭 Use demo mode to test all features",
-          ],
-          isBlocked: true,
-          selfHostingRecommended: true,
-        },
-        { status: 403 },
-      )
-    }
-
     if (!response.ok) {
       console.error("❌ Login failed:", response.status, responseText)
+
+      // Check if it's a WAF block
+      if (
+        responseText.includes("Access Denied") ||
+        responseText.includes("Permission") ||
+        responseText.includes("HTML")
+      ) {
+        return NextResponse.json(
+          {
+            error: "API Access Blocked",
+            message: "ClasseViva API is blocking requests from this server environment.",
+            details: "The API may have geographic or IP restrictions.",
+            isBlocked: true,
+          },
+          { status: 403 },
+        )
+      }
+
       return NextResponse.json(
         {
           error: "Login failed",
-          details: responseText.includes("Access Denied")
-            ? "API access blocked"
-            : "Invalid credentials or server error",
+          details: "Invalid credentials or server error",
           status: response.status,
-          selfHostingMayHelp: true,
         },
         { status: response.status },
       )
@@ -117,7 +85,7 @@ export async function POST(request: NextRequest) {
       const data = JSON.parse(responseText)
       console.log("✅ Login successful!")
 
-      // Extract the ident like in the script (remove quotes)
+      // Extract the ident like in your Python script (remove quotes)
       const cleanIdent = data.ident ? data.ident.slice(1, -1) : data.ident
 
       return NextResponse.json({
@@ -149,7 +117,6 @@ export async function POST(request: NextRequest) {
       {
         error: "Server error",
         details: error instanceof Error ? error.message : "Unknown error",
-        selfHostingMayHelp: true,
       },
       { status: 500 },
     )
