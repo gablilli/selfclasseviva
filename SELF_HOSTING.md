@@ -18,16 +18,16 @@ Self-hosting SysRegister on your own server can bypass the API restrictions that
 - Git installed
 
 ### 1. Clone the Repository
-\`\`\`bash
-git clone <your-repo-url>
-cd sysregister
-\`\`\`
+```
+git clone github.com/gablilli/selfclasseviva.git 
+cd selfclasseviva
+```
 
 ### 2. Run the Setup Script
-\`\`\`bash
+```
 chmod +x deploy.sh
 ./deploy.sh
-\`\`\`
+```
 
 ### 3. Access the App
 Open http://localhost:3000 in your browser
@@ -60,9 +60,9 @@ npm start
 \`\`\`
 
 ### Option 3: Docker Only
-\`\`\`bash
-# Build image
+```
 docker build -t sysregister .
+```
 
 # Run container
 docker run -p 3000:3000 sysregister
@@ -93,11 +93,11 @@ ports:
 
 ## 🔐 Environment Variables
 
-Create `.env.local` file:
-\`\`\`env
-# Optional: Pre-fill credentials
+Create `.env.local` file to pre-fill the credentials - this is optional
+```
 CLASSEVIVA_USERNAME=your_username
 CLASSEVIVA_PASSWORD=your_password
+```
 
 # App settings
 NODE_ENV=production
